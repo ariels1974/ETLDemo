@@ -1,3 +1,5 @@
+using ETLDemoGateway.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,6 +10,14 @@ builder.Services.AddOpenApi();
 // Add Swagger services
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add KafkaProducerService as a singleton
+builder.Services.AddSingleton(sp =>
+    new KafkaProducerService(
+        builder.Configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
+        builder.Configuration["Kafka:Topic"] ?? "demo-topic"
+    )
+);
 
 var app = builder.Build();
 
