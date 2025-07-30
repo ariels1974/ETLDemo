@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "ETLDemo.Grpc";
+
+package simplemessage;
+
+service SimpleMessageService {
+  rpc SendMessage (SimpleMessageRequest) returns (SimpleMessageReply);
+}
+
+message SimpleMessageRequest {
+  string message = 1;
+}
+
+message SimpleMessageReply {
+  string response = 1;
+}
