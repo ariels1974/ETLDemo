@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(sp =>
     new KafkaProducerService(
         builder.Configuration["Kafka:BootstrapServers"] ?? "localhost:9092",
-        builder.Configuration["Kafka:Topic"] ?? "demo-topic"
+        builder.Configuration["Kafka:Topic"] ?? "scraping-requests"
     )
 );
 

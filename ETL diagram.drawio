@@ -1,0 +1,100 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="28.0.7">
+  <diagram name="Page-1" id="eiwatpNdarTxxyM1JCZ-">
+    <mxGraphModel dx="1426" dy="751" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="zHl6bDp288SzoJeKsS2t-1" value="Scheduler" style="whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="295.49" y="240" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zHl6bDp288SzoJeKsS2t-1" target="zHl6bDp288SzoJeKsS2t-20" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="364" y="390" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-21" value="Topic:&amp;nbsp;scraping-requests" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="zHl6bDp288SzoJeKsS2t-4" vertex="1" connectable="0">
+          <mxGeometry x="0.1954" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.051;entryY=0.495;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="zHl6bDp288SzoJeKsS2t-9" target="zHl6bDp288SzoJeKsS2t-20" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="299" y="409.5" as="targetPoint" />
+            <mxPoint x="180" y="600" as="sourcePoint" />
+            <Array as="points">
+              <mxPoint x="180" y="620" />
+              <mxPoint x="180" y="409" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-23" value="Topic:&amp;nbsp;scraping-results" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="zHl6bDp288SzoJeKsS2t-11" vertex="1" connectable="0">
+          <mxGeometry x="0.5347" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-9" value="Scrapper" style="whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="220" y="590" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="zHl6bDp288SzoJeKsS2t-12" target="zHl6bDp288SzoJeKsS2t-16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-12" value="Content Transformation&lt;div&gt;(Schema mapper)&lt;/div&gt;" style="verticalLabelPosition=middle;verticalAlign=middle;html=1;shape=mxgraph.basic.rect;fillColor2=none;strokeWidth=1;size=20;indent=5;labelPosition=center;align=center;" parent="1" vertex="1">
+          <mxGeometry x="600" y="380.5" width="131" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zHl6bDp288SzoJeKsS2t-16" target="zHl6bDp288SzoJeKsS2t-18" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-16" value="Storage Service" style="whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="510" y="500" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-18" value="DB" style="strokeWidth=2;html=1;shape=mxgraph.flowchart.database;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="680" y="600" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="zHl6bDp288SzoJeKsS2t-20" target="zHl6bDp288SzoJeKsS2t-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-30" value="Topic:&amp;nbsp;scraping-requests" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="zHl6bDp288SzoJeKsS2t-29" vertex="1" connectable="0">
+          <mxGeometry x="0.0604" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-20" value="" style="points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;fillColor=#FF6A00;strokeColor=none;shape=mxgraph.alibaba_cloud.kafka;" parent="1" vertex="1">
+          <mxGeometry x="301.98" y="358.75" width="137.02" height="101.5" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-24" value="Data Sources → Extraction Layer → Kafka Topics → Transformation Layer → Kafka Topics → Loading Layer → Storage&#xa;                     ↓                ↓                      ↓                    ↓              ↓&#xa;                Event Topics    Raw Data Topics      Processed Topics      System Events   Dead Letter Queue" style="text;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="120" y="40" width="560" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.015;entryY=0.475;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="zHl6bDp288SzoJeKsS2t-20" target="zHl6bDp288SzoJeKsS2t-12" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-28" value="Topic:&amp;nbsp;scraping-results" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="zHl6bDp288SzoJeKsS2t-27" vertex="1" connectable="0">
+          <mxGeometry x="-0.193" y="3" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <UserObject label="// Request includes client identifier&#xa;{&#xa;  &quot;job_id&quot;: &quot;uuid-123&quot;,&#xa;  &quot;client_id&quot;: &quot;client-456&quot;,&#xa;  &quot;response_topic&quot;: &quot;client-456-results&quot;,&#xa;  &quot;urls&quot;: [&quot;https://example.com&quot;]&#xa;}&#xa;&#xa;&#xa;// Scraper publishes to client-456-results&#xa;{&#xa;  &quot;job_id&quot;: &quot;uuid-123&quot;,&#xa;  &quot;status&quot;: &quot;completed&quot;,&#xa;  &quot;data&quot;: [...]&#xa;}" link="// Request includes client identifier&#xa;{&#xa;  &quot;job_id&quot;: &quot;uuid-123&quot;,&#xa;  &quot;client_id&quot;: &quot;client-456&quot;,&#xa;  &quot;response_topic&quot;: &quot;client-456-results&quot;,&#xa;  &quot;urls&quot;: [&quot;https://example.com&quot;]&#xa;}&#xa;&#xa;&#xa;// Scraper publishes to client-456-results&#xa;{&#xa;  &quot;job_id&quot;: &quot;uuid-123&quot;,&#xa;  &quot;status&quot;: &quot;completed&quot;,&#xa;  &quot;data&quot;: [...]&#xa;}" id="zHl6bDp288SzoJeKsS2t-31">
+          <mxCell style="text;whiteSpace=wrap;" parent="1" vertex="1">
+            <mxGeometry x="20" y="780" width="250" height="240" as="geometry" />
+          </mxCell>
+        </UserObject>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="zHl6bDp288SzoJeKsS2t-32" target="zHl6bDp288SzoJeKsS2t-33" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-32" value="UI" style="whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="635" y="160" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.813;exitY=0.933;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="zHl6bDp288SzoJeKsS2t-33" target="zHl6bDp288SzoJeKsS2t-18" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="810" y="630" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-33" value="WebService" style="whiteSpace=wrap;html=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="635" y="260" width="150" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="zHl6bDp288SzoJeKsS2t-36" value="&lt;div style=&quot;line-height: 130%;&quot;&gt;&lt;h2 style=&quot;line-height: 130%;&quot; class=&quot;text-xl font-bold text-text-100 mt-1 -mb-0.5&quot;&gt;DLQ Implementation with Kafka&lt;/h2&gt;&lt;p class=&quot;whitespace-normal break-words&quot;&gt;&lt;strong&gt;Topic Structure&lt;/strong&gt;:&lt;/p&gt;&lt;ul style=&quot;line-height: 100%;&quot; class=&quot;[&amp;amp;:not(:last-child)_ul]:pb-1 [&amp;amp;:not(:last-child)_ol]:pb-1 list-disc space-y-1.5 pl-7&quot;&gt;&lt;li class=&quot;whitespace-normal break-words&quot;&gt;&lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;scraping-requests&lt;/code&gt; (main topic)&lt;/li&gt;&lt;br&gt;&lt;li class=&quot;whitespace-normal break-words&quot;&gt;&lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;scraping-requests-dlq&lt;/code&gt; (dead letter topic)&lt;/li&gt;&lt;br&gt;&lt;li class=&quot;whitespace-normal break-words&quot;&gt;&lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;transformation-dlq&lt;/code&gt;&lt;/li&gt;&lt;br&gt;&lt;li class=&quot;whitespace-normal break-words&quot;&gt;&lt;code class=&quot;bg-text-200/5 border border-0.5 border-border-300 text-danger-000 whitespace-pre-wrap rounded-[0.4rem] px-1 py-px text-[0.9rem]&quot;&gt;loading-dlq&lt;/code&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;align=left;" parent="1" vertex="1">
+          <mxGeometry x="830" y="900" width="290" height="180" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,10 +1,5 @@
 using Confluent.Kafka;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using HtmlAgilityPack;
 
 namespace ETLDemoConsumer
 {
@@ -13,6 +8,7 @@ namespace ETLDemoConsumer
         private readonly ILogger<Worker> _logger;
         private readonly IConfiguration _configuration;
         private IConsumer<Null, string>? _consumer;
+        private readonly HttpClient _httpClient = new();
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
@@ -22,8 +18,8 @@ namespace ETLDemoConsumer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var bootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:9092";
-            var topic = _configuration["Kafka:Topic"] ?? "demo-topic";
+            var bootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092";
+            var topic = _configuration["Kafka:Topic"] ?? "user-events";
             var groupId = _configuration["Kafka:ConsumerGroup"] ?? "demo-consumer-group";
 
             var config = new ConsumerConfig
@@ -47,7 +43,20 @@ namespace ETLDemoConsumer
                         var result = _consumer.Consume(stoppingToken);
                         if (result != null)
                         {
-                            _logger.LogInformation("Consumed message: {Message}", result.Message.Value);
+                            var url = result.Message.Value;
+                            _logger.LogInformation("Consumed URL: {Url}", url);
+                            try
+                            {
+                                var html = await _httpClient.GetStringAsync(url);
+                                var doc = new HtmlDocument();
+                                doc.LoadHtml(html);
+                                var title = doc.DocumentNode.SelectSingleNode("//title")?.InnerText?.Trim();
+                                _logger.LogInformation("Scraped title: {Title}", title ?? "(no title found)");
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Failed to fetch or parse URL: {Url}", url);
+                            }
                         }
                     }
                     catch (ConsumeException ex)
