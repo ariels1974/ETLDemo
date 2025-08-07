@@ -21,6 +21,7 @@ public class StealthWebScraper
 
         // Stealth arguments
         options.AddArgument("--disable-dev-shm-usage");
+        //options.AddArgument("--silent-launch");
         options.AddArgument("--no-sandbox");
         options.AddArgument("--disable-gpu");
         options.AddArgument("--disable-extensions");

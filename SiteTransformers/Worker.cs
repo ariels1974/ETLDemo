@@ -1,14 +1,28 @@
+using System.Text.Json;
 using Confluent.Kafka;
-using HtmlAgilityPack;
+using SiteTransformers.Transformers;
 
-namespace ETLDemoConsumer
+namespace SiteTransformers
 {
+    public class SiteTransformerFactory
+    {
+        public ISiteTransformer GetTransformer(string site)
+        {
+            return site switch
+            {
+                "alm.co.il" => new ALMTransformer(),
+                "SiteB" => new SiteBTransformer(),
+                _ => new DefaultTransformer(),
+            };
+        }
+    }
+
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
         private readonly IConfiguration _configuration;
         private IConsumer<Null, string>? _consumer;
-        private readonly HttpClient _httpClient = new();
+        private readonly SiteTransformerFactory _factory = new();
 
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
@@ -19,8 +33,8 @@ namespace ETLDemoConsumer
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var bootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092";
-            var topic = _configuration["Kafka:Topic"] ?? "user-events";
-            var groupId = _configuration["Kafka:ConsumerGroup"] ?? "demo-consumer-group";
+            var topic = "scraping-data";
+            var groupId = _configuration["Kafka:ConsumerGroup"] ?? "scraping-data-consumer-group";
 
             var config = new ConsumerConfig
             {
@@ -32,7 +46,7 @@ namespace ETLDemoConsumer
             _consumer = new ConsumerBuilder<Null, string>(config).Build();
             _consumer.Subscribe(topic);
 
-            _logger.LogInformation("Kafka consumer started, subscribing to topic: {Topic}", topic);
+            _logger.LogInformation("ScrapingDataConsumer started, subscribing to topic: {Topic}", topic);
 
             try
             {
@@ -43,25 +57,21 @@ namespace ETLDemoConsumer
                         var result = _consumer.Consume(stoppingToken);
                         if (result != null)
                         {
-                            var url = result.Message.Value;
-                            _logger.LogInformation("Consumed URL: {Url}", url);
-                            try
-                            {
-                                var html = await _httpClient.GetStringAsync(url);
-                                var doc = new HtmlDocument();
-                                doc.LoadHtml(html);
-                                var title = doc.DocumentNode.SelectSingleNode("//title")?.InnerText?.Trim();
-                                _logger.LogInformation("Scraped title: {Title}", title ?? "(no title found)");
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "Failed to fetch or parse URL: {Url}", url);
-                            }
+                            var doc = JsonDocument.Parse(result.Message.Value);
+                            var site = doc.RootElement.GetProperty("Site").GetString() ?? "";
+                            var data = doc.RootElement.GetProperty("Html").GetString() ?? "";
+                            var transformer = _factory.GetTransformer(site);
+                            var transformed = transformer.Transform(data);
+                            _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, transformed);
                         }
                     }
                     catch (ConsumeException ex)
                     {
                         _logger.LogError(ex, "Kafka consume error");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error processing message");
                     }
                 }
             }

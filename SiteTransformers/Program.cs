@@ -1,4 +1,4 @@
-using PayngoScraper;
+using SiteTransformers;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();

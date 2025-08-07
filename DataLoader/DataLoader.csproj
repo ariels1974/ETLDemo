@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-DataLoader-656477ef-22b1-48f0-950c-216791c842de</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Confluent.Kafka" Version="2.11.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+    <PackageReference Include="MongoDB.Driver" Version="3.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ScrapingDataConsumer\SiteTransformers.csproj" />
+  </ItemGroup>
+</Project>

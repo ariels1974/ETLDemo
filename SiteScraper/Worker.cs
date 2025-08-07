@@ -1,11 +1,8 @@
 using Confluent.Kafka;
-using HtmlAgilityPack;
 
-// Added for By
 
-namespace PayngoScraper;
-
-public class Worker : BackgroundService
+namespace SiteScraper;
+public partial class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
     private readonly IConfiguration _configuration;
@@ -16,12 +13,12 @@ public class Worker : BackgroundService
         _logger = logger;
         _configuration = configuration;
     }
-
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var bootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092";
         var topic = _configuration["Kafka:Topic"] ?? "scraping-requests";
-        var groupId = _configuration["Kafka:ConsumerGroup"] ?? "payngo-scraper-group";
+        var groupId = _configuration["Kafka:ConsumerGroup"] ?? "site-scraper-group";
 
         var config = new ConsumerConfig
         {
@@ -33,15 +30,8 @@ public class Worker : BackgroundService
         _consumer = new ConsumerBuilder<Null, string>(config).Build();
         _consumer.Subscribe(topic);
 
-        _logger.LogInformation("PayngoScraper started, subscribing to topic: {Topic}", topic);
+        _logger.LogInformation("SiteScraper started, subscribing to topic: {Topic}", topic);
 
-        //var chromeOptions = new ChromeOptions();
-        //chromeOptions.AddArgument("--headless=new");
-        //chromeOptions.AddArgument("--disable-gpu");
-        //chromeOptions.AddArgument("--no-sandbox");
-        //chromeOptions.AddArgument("--enable-unsafe-webgpu");
-        //chromeOptions.AddArgument("--enable-unsafe-swiftshader");
-        
         try
         {
             while (!stoppingToken.IsCancellationRequested)
@@ -70,13 +60,30 @@ public class Worker : BackgroundService
                                 var element = await scraper.WaitForElement("#root"); // or ".root" for class
                                 var content = await scraper.ExtractAllContent();
                                 await ExportToFile(stoppingToken, productName, content.Html);
-                                // Do your scraping...
-                                //Console.WriteLine("Element found! Content: " + element.Text);
-                                var doc = new HtmlDocument();
-                                doc.LoadHtml(content.Html);
-                                var productNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'item-root')]");
-                                var name = productNode.SelectSingleNode(".//a[contains(@class, 'item-name')]")?.InnerText?.Trim();
+
+                                var scrapingData = new ScrapingData("alm.co.il", content.Html, DateTime.Now);
+
+                                // Send to Kafka on scraping-data topic
+                                var producerConfig = new ProducerConfig
+                                {
+                                    BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
+                                };
+
+                                using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
+                                var scrapingDataJson = System.Text.Json.JsonSerializer.Serialize(scrapingData);
+                                var message = new Message<Null, string> { Value = scrapingDataJson };
+                                await producer.ProduceAsync("scraping-data", message, stoppingToken);
+                                _logger.LogInformation("Sent scraping-data for {Site} to Kafka", scrapingData.Site);
                             }
+
+                            // Do your scraping...
+                            //Console.WriteLine("Element found! Content: " + element.Text);
+                            //var doc = new HtmlDocument();
+
+                            //doc.LoadHtml(content.Html);
+                            //var productNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'item-root')]");
+                            //var name = productNode.SelectSingleNode(".//a[contains(@class, 'item-name')]")?.InnerText?.Trim();
+
                             else
                             {
                                 //Console.WriteLine("Failed to navigate after all retries");
@@ -110,7 +117,7 @@ public class Worker : BackgroundService
                         catch (Exception ex)
                         {
                             //await ExportToFile(stoppingToken, productName, driver.PageSource);
-                            _logger.LogError(ex, "Failed to search or scrape Payngo for: {ProductName}", productName);
+                            _logger.LogError(ex, "Failed to search or scrape site for: {ProductName}", productName);
                         }
                     }
                 }

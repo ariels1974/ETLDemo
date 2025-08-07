@@ -200,3 +200,71 @@ spec:
             --replication-factor 1 \
             --if-not-exists
           echo "Topic 'scraping-requests' created successfully"
+
+          kafka-topics --create \
+            --topic scraping-data \
+            --bootstrap-server kafka-service:9092 \
+            --partitions 3 \
+            --replication-factor 1 \
+            --if-not-exists
+          echo "Topic 'scraping-data' created successfully"
+
+          kafka-topics --create \
+            --topic  product-scraping-data \
+            --bootstrap-server kafka-service:9092 \
+            --partitions 3 \
+            --replication-factor 1 \
+            --if-not-exists
+          echo "Topic ' product-scraping-data' created successfully"
+---
+# MongoDB Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:6.0
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_DATABASE
+          value: ScrapingDb
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: root
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: password
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+# MongoDB Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  labels:
+    app: mongodb
+spec:
+  type: NodePort
+  ports:
+  - port: 27017
+    targetPort: 27017
+    nodePort: 32017
+    name: mongo
+  selector:
+    app: mongodb
