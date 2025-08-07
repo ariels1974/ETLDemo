@@ -19,12 +19,14 @@ public class Worker : BackgroundService
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        var mongoConn = _configuration["MongoDB:ConnectionString"] ?? "mongodb://localhost:27017";
+        var mongoConn = _configuration["MongoDB:ConnectionString"] ?? "mongodb://root:password@localhost:32017";
         var mongoDb = _configuration["MongoDB:Database"] ?? "ScrapingDb";
         var mongoCollection = _configuration["MongoDB:Collection"] ?? "ProductScrapingRecords";
         var client = new MongoClient(mongoConn);
         var db = client.GetDatabase(mongoDb);
         _collection = db.GetCollection<ProductScrapingRecord>(mongoCollection);
+        _logger.LogInformation("MongoDB connected to {ConnectionString}, using database {Database} and collection {Collection}",
+            mongoConn, mongoDb, mongoCollection);
         await base.StartAsync(cancellationToken);
     }
 

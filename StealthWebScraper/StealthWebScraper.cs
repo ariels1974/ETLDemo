@@ -4,7 +4,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace StealthWebScraper;
 
-public class StealthWebScraper
+public class StealthWebScraper : IDisposable
 {
     private ChromeDriver driver;
     private WebDriverWait wait;

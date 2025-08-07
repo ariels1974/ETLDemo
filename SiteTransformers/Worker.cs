@@ -63,6 +63,15 @@ namespace SiteTransformers
                             var transformer = _factory.GetTransformer(site);
                             var transformed = transformer.Transform(data);
                             _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, transformed);
+                            var producerConfig = new ProducerConfig
+                            {
+                                BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
+                            };
+
+                            using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
+                            var scrapingDataJson = JsonSerializer.Serialize(transformed);
+                            var message = new Message<Null, string> { Value = scrapingDataJson };
+                            await producer.ProduceAsync("product-scraping-data", message, stoppingToken);
                         }
                     }
                     catch (ConsumeException ex)

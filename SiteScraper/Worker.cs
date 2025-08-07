@@ -45,11 +45,9 @@ public partial class Worker : BackgroundService
                         _logger.LogInformation("Consumed product name: {ProductName}", productName);
                         
                             var searchUrl = $"https://www.alm.co.il/search.html?query={Uri.EscapeDataString(productName)}";
-                            //using var driver = new ChromeDriver(chromeOptions);
-                            //driver.Navigate().GoToUrl(searchUrl);
                         try
                         {
-                            var scraper = new StealthWebScraper.StealthWebScraper();
+                            using var scraper = new StealthWebScraper.StealthWebScraper();
                             // Create stealth driver
                             await scraper.CreateStealthDriver();
                             var success = await scraper.NavigateWithRetry(searchUrl);
@@ -95,14 +93,10 @@ public partial class Worker : BackgroundService
                             //var content = driver.PageSource;
 
                             // Save HTML as .html file
-                            
 
-                            
-
-                            
                             //if (productNode != null)
                             //{
-                                
+
                             //    var price = productNode.SelectSingleNode(".//div[contains(@class, 'item-priceWrapper')]")?.InnerText?.Trim();
                             //    var link = productNode.SelectSingleNode(".//a[@href]")?.GetAttributeValue("href", null);
                             //    if (!string.IsNullOrEmpty(link) && !link.StartsWith("http"))
