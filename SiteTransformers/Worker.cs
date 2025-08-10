@@ -10,7 +10,7 @@ namespace SiteTransformers
         {
             return site switch
             {
-                "alm.co.il" => new ALMTransformer(),
+                "Payngo-Electric Scooter" => new ALMTransformer(),
                 "SiteB" => new SiteBTransformer(),
                 _ => new DefaultTransformer(),
             };
@@ -58,7 +58,7 @@ namespace SiteTransformers
                         if (result != null)
                         {
                             var doc = JsonDocument.Parse(result.Message.Value);
-                            var site = doc.RootElement.GetProperty("Site").GetString() ?? "";
+                            var site = doc.RootElement.GetProperty("SiteName").GetString() ?? "";
                             var data = doc.RootElement.GetProperty("Html").GetString() ?? "";
                             var transformer = _factory.GetTransformer(site);
                             var transformed = transformer.Transform(data);

@@ -1,4 +1,5 @@
 using Confluent.Kafka;
+using System.Text.Json;
 
 
 namespace SiteScraper;
@@ -41,78 +42,95 @@ public partial class Worker : BackgroundService
                     var result = _consumer.Consume(stoppingToken);
                     if (result != null)
                     {
-                        var productName = result.Message.Value;
-                        _logger.LogInformation("Consumed product name: {ProductName}", productName);
-                        
-                            var searchUrl = $"https://www.alm.co.il/search.html?query={Uri.EscapeDataString(productName)}";
+                        // Try to deserialize as SiteScheduleConfig
+                        SiteScheduleConfig? scheduleConfig = null;
                         try
                         {
-                            using var scraper = new StealthWebScraper.StealthWebScraper();
-                            // Create stealth driver
-                            await scraper.CreateStealthDriver();
-                            var success = await scraper.NavigateWithRetry(searchUrl);
-
-                            if (success)
-                            {
-                                // Wait for your element (fixed selector)
-                                var element = await scraper.WaitForElement("#root"); // or ".root" for class
-                                var content = await scraper.ExtractAllContent();
-                                await ExportToFile(stoppingToken, productName, content.Html);
-
-                                var scrapingData = new ScrapingData("alm.co.il", content.Html, DateTime.Now);
-
-                                // Send to Kafka on scraping-data topic
-                                var producerConfig = new ProducerConfig
-                                {
-                                    BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
-                                };
-
-                                using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
-                                var scrapingDataJson = System.Text.Json.JsonSerializer.Serialize(scrapingData);
-                                var message = new Message<Null, string> { Value = scrapingDataJson };
-                                await producer.ProduceAsync("scraping-data", message, stoppingToken);
-                                _logger.LogInformation("Sent scraping-data for {Site} to Kafka", scrapingData.Site);
-                            }
-
-                            // Do your scraping...
-                            //Console.WriteLine("Element found! Content: " + element.Text);
-                            //var doc = new HtmlDocument();
-
-                            //doc.LoadHtml(content.Html);
-                            //var productNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'item-root')]");
-                            //var name = productNode.SelectSingleNode(".//a[contains(@class, 'item-name')]")?.InnerText?.Trim();
-
-                            else
-                            {
-                                //Console.WriteLine("Failed to navigate after all retries");
-                            }
-                            // Use explicit wait for the product container to appear
-                            //var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-                            //wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#root")));
-
-                            //var content = driver.PageSource;
-
-                            // Save HTML as .html file
-
-                            //if (productNode != null)
-                            //{
-
-                            //    var price = productNode.SelectSingleNode(".//div[contains(@class, 'item-priceWrapper')]")?.InnerText?.Trim();
-                            //    var link = productNode.SelectSingleNode(".//a[@href]")?.GetAttributeValue("href", null);
-                            //    if (!string.IsNullOrEmpty(link) && !link.StartsWith("http"))
-                            //        link = "https://www.payngo.co.il" + link;
-                            //    _logger.LogInformation("Scraped: Name={Name}, Price={Price}, Link={Link}", name, price, link);
-                            //}
-                            //else
-                            //{
-                            //    _logger.LogWarning("No product found for: {ProductName}", productName);
-                            //}
+                            scheduleConfig = JsonSerializer.Deserialize<SiteScheduleConfig>(result.Message.Value);
                         }
                         catch (Exception ex)
                         {
-                            //await ExportToFile(stoppingToken, productName, driver.PageSource);
-                            _logger.LogError(ex, "Failed to search or scrape site for: {ProductName}", productName);
+                            _logger.LogWarning(ex, "Message is not a SiteScheduleConfig, falling back to string");
                         }
+
+                        if (scheduleConfig != null)
+                        {
+                            _logger.LogInformation("Consumed SiteScheduleConfig: SiteName={SiteName}, SiteAddress={SiteAddress}", scheduleConfig.SiteName, scheduleConfig.SiteAddress);
+                            // TODO: Use scheduleConfig.SiteName, scheduleConfig.SiteAddress, scheduleConfig.Period for scraping logic
+
+                            _logger.LogInformation("Consumed site name: {SiteName}", scheduleConfig.SiteName);
+                            
+                            var searchUrl = $"{Uri.EscapeDataString(scheduleConfig.SiteAddress)}";
+                            try
+                            {
+                                using var scraper = new StealthWebScraper.StealthWebScraper();
+                                // Create stealth driver
+                                await scraper.CreateStealthDriver();
+                                var success = await scraper.NavigateWithRetry(searchUrl);
+
+                                if (success)
+                                {
+                                    // Wait for your element (fixed selector)
+                                    //var element = await scraper.WaitForElement("#root"); // or ".root" for class
+                                    var content = await scraper.ExtractAllContent();
+                                    //await ExportToFile(stoppingToken, productName, content.Html);
+
+                                    var scrapingData = new ScrapingData(scheduleConfig.SiteName, content.Html, DateTime.Now);
+
+                                    // Send to Kafka on scraping-data topic
+                                    var producerConfig = new ProducerConfig
+                                    {
+                                        BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
+                                    };
+
+                                    using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
+                                    var scrapingDataJson = System.Text.Json.JsonSerializer.Serialize(scrapingData);
+                                    var message = new Message<Null, string> { Value = scrapingDataJson };
+                                    await producer.ProduceAsync("scraping-data", message, stoppingToken);
+                                    _logger.LogInformation("Sent scraping-data for {Site} to Kafka", scrapingData.Site);
+                                }
+
+                                // Do your scraping...
+                                //Console.WriteLine("Element found! Content: " + element.Text);
+                                //var doc = new HtmlDocument();
+
+                                //doc.LoadHtml(content.Html);
+                                //var productNode = doc.DocumentNode.SelectSingleNode("//div[contains(@class, 'item-root')]");
+                                //var name = productNode.SelectSingleNode(".//a[contains(@class, 'item-name')]")?.InnerText?.Trim();
+
+                                else
+                                {
+                                    //Console.WriteLine("Failed to navigate after all retries");
+                                }
+                                // Use explicit wait for the product container to appear
+                                //var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+                                //wait.Until(ExpectedConditions.ElementExists(By.CssSelector("#root")));
+
+                                //var content = driver.PageSource;
+
+                                // Save HTML as .html file
+
+                                //if (productNode != null)
+                                //{
+
+                                //    var price = productNode.SelectSingleNode(".//div[contains(@class, 'item-priceWrapper')]")?.InnerText?.Trim();
+                                //    var link = productNode.SelectSingleNode(".//a[@href]")?.GetAttributeValue("href", null);
+                                //    if (!string.IsNullOrEmpty(link) && !link.StartsWith("http"))
+                                //        link = "https://www.payngo.co.il" + link;
+                                //    _logger.LogInformation("Scraped: Name={Name}, Price={Price}, Link={Link}", name, price, link);
+                                //}
+                                //else
+                                //{
+                                //    _logger.LogWarning("No product found for: {ProductName}", productName);
+                                //}
+                            }
+                            catch (Exception ex)
+                            {
+                                //await ExportToFile(stoppingToken, productName, driver.PageSource);
+                                _logger.LogError(ex, "Failed to search or scrape site for: {SiteName}", scheduleConfig.SiteName);
+                            }
+                        }
+                        
                     }
                 }
                 catch (ConsumeException ex)
