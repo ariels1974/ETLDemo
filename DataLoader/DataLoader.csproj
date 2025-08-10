@@ -14,6 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ScrapingDataConsumer\SiteTransformers.csproj" />
+    <ProjectReference Include="..\SiteTransformers\SiteTransformers.csproj" />
   </ItemGroup>
 </Project>

@@ -14,6 +14,9 @@ public class SchedulerConfigLoader
     public static List<SiteScheduleConfig> Load(string path)
     {
         var json = File.ReadAllText(path);
-        return JsonSerializer.Deserialize<List<SiteScheduleConfig>>(json) ?? new List<SiteScheduleConfig>();
+        return JsonSerializer.Deserialize<List<SiteScheduleConfig>>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        }) ?? new List<SiteScheduleConfig>();
     }
 }

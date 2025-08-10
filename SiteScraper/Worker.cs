@@ -60,13 +60,12 @@ public partial class Worker : BackgroundService
 
                             _logger.LogInformation("Consumed site name: {SiteName}", scheduleConfig.SiteName);
                             
-                            var searchUrl = $"{Uri.EscapeDataString(scheduleConfig.SiteAddress)}";
                             try
                             {
                                 using var scraper = new StealthWebScraper.StealthWebScraper();
                                 // Create stealth driver
                                 await scraper.CreateStealthDriver();
-                                var success = await scraper.NavigateWithRetry(searchUrl);
+                                var success = await scraper.NavigateWithRetry(scheduleConfig.SiteAddress);
 
                                 if (success)
                                 {
@@ -80,12 +79,16 @@ public partial class Worker : BackgroundService
                                     // Send to Kafka on scraping-data topic
                                     var producerConfig = new ProducerConfig
                                     {
-                                        BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
+                                        BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092",
+                                        CompressionType = CompressionType.Gzip,
+                                        MessageMaxBytes = 52428800,
                                     };
 
                                     using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
                                     var scrapingDataJson = System.Text.Json.JsonSerializer.Serialize(scrapingData);
                                     var message = new Message<Null, string> { Value = scrapingDataJson };
+                                    var messageSize = System.Text.Encoding.UTF8.GetByteCount(scrapingDataJson);
+                                    _logger.LogWarning("Kafka message size: {Size} bytes", messageSize);
                                     await producer.ProduceAsync("scraping-data", message, stoppingToken);
                                     _logger.LogInformation("Sent scraping-data for {Site} to Kafka", scrapingData.Site);
                                 }
@@ -100,7 +103,7 @@ public partial class Worker : BackgroundService
 
                                 else
                                 {
-                                    //Console.WriteLine("Failed to navigate after all retries");
+                                    Console.WriteLine("Failed to navigate after all retries");
                                 }
                                 // Use explicit wait for the product container to appear
                                 //var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
