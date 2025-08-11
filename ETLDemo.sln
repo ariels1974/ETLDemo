@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLoader", "DataLoader\Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SiteScheduler", "SiteScheduler\SiteScheduler.csproj", "{80D24139-3CCF-FD47-F027-D1DEF5DC42FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlInvestigator.Console", "HtmlInvestigator.Console\HtmlInvestigator.Console.csproj", "{08FAB2FA-17D6-3854-C254-16FA962A7B79}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{80D24139-3CCF-FD47-F027-D1DEF5DC42FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80D24139-3CCF-FD47-F027-D1DEF5DC42FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80D24139-3CCF-FD47-F027-D1DEF5DC42FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08FAB2FA-17D6-3854-C254-16FA962A7B79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08FAB2FA-17D6-3854-C254-16FA962A7B79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08FAB2FA-17D6-3854-C254-16FA962A7B79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08FAB2FA-17D6-3854-C254-16FA962A7B79}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

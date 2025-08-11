@@ -11,7 +11,7 @@ namespace SiteTransformers
             return site switch
             {
                 "Payngo-Electric Scooter" => new PayngoTransformer(),
-                "SiteB" => new ALMTransformer(),
+                "ALM-Electric Scooter" => new ALMTransformer(),
                 _ => new DefaultTransformer(),
             };
         }
@@ -62,16 +62,19 @@ namespace SiteTransformers
                             var data = doc.RootElement.GetProperty("Html").GetString() ?? "";
                             var transformer = _factory.GetTransformer(site);
                             var transformed = transformer.Transform(data);
-                            _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, transformed);
-                            var producerConfig = new ProducerConfig
+                            foreach (var item in transformed)
                             {
-                                BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
-                            };
+                                _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, item);
+                                var producerConfig = new ProducerConfig
+                                {
+                                    BootstrapServers = _configuration["Kafka:BootstrapServers"] ?? "localhost:30092"
+                                };
 
-                            using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
-                            var scrapingDataJson = JsonSerializer.Serialize(transformed);
-                            var message = new Message<Null, string> { Value = scrapingDataJson };
-                            await producer.ProduceAsync("product-scraping-data", message, stoppingToken);
+                                using var producer = new ProducerBuilder<Null, string>(producerConfig).Build();
+                                var scrapingDataJson = JsonSerializer.Serialize(item);
+                                var message = new Message<Null, string> { Value = scrapingDataJson };
+                                await producer.ProduceAsync("product-scraping-data", message, stoppingToken);
+                            }
                         }
                     }
                     catch (ConsumeException ex)

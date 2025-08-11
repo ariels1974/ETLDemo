@@ -12,5 +12,5 @@ public record ProductScrapingRecord(
 
 public interface ISiteTransformer
 {
-    ProductScrapingRecord Transform(string message);
+    List<ProductScrapingRecord> Transform(string message);
 }
