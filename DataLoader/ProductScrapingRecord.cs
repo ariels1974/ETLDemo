@@ -4,7 +4,6 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace DataLoader;
 
 public record ProductScrapingRecord(
-    [property: BsonId][property: BsonRepresentation(BsonType.ObjectId)] string? Id = null,
     [property: BsonElement("category")] string Category = "",
     [property: BsonElement("price")] string Price = "",
     [property: BsonElement("serialNumber")] string SerialNumber = "",
