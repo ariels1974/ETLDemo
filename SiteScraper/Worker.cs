@@ -25,7 +25,7 @@ public partial class Worker : BackgroundService
         {
             BootstrapServers = bootstrapServers,
             GroupId = groupId,
-            AutoOffsetReset = AutoOffsetReset.Earliest
+            AutoOffsetReset = AutoOffsetReset.Latest
         };
 
         _consumer = new ConsumerBuilder<Null, string>(config).Build();
