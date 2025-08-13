@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using System.Text.Json;
+using Scraping.Statistics;
 
 namespace SiteTransformers
 {
@@ -10,19 +11,25 @@ namespace SiteTransformers
         private IConsumer<Null, string>? _consumer;
         private readonly SiteTransformerFactory _factory = new();
         private readonly IProducer<Null, string> _producer;
-
+        private readonly ScrapingStatisticsService _statisticsService;
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
             _producer = CreateProducer();
+            _statisticsService = new ScrapingStatisticsService(
+                configuration["InfluxDB:Url"],
+                configuration["InfluxDB:Token"],
+                configuration["InfluxDB:Org"],
+                configuration["InfluxDB:Bucket"]
+            );
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
            CreateKafkaConsumerAndSubscribe();
-
-           try
+           
+            try
            {
                 while (!stoppingToken.IsCancellationRequested)
                 {
@@ -32,19 +39,24 @@ namespace SiteTransformers
                         var doc = JsonDocument.Parse(result.Message.Value);
                         var site = doc.RootElement.GetProperty("Site").GetString() ?? "";
                         var data = doc.RootElement.GetProperty("Html").GetString() ?? "";
+                        // Write state: Started
+                        await _statisticsService.WriteScrapingStateAsync(site, ScrapingState.Started, "Transformer", DateTime.Now);
+
                         var transformer = _factory.GetTransformer(site);
-                        var transformed = transformer.Transform(data);
+                        var transformed = transformer.Transform(data, site);
                         foreach (var item in transformed)
                         {
                             _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, item);
 
                             await WriteMessageToKafka(stoppingToken, item, "product-scraping-data");
                         }
+                        await _statisticsService.WriteScrapingStateAsync(site, ScrapingState.Success, "Transformer", DateTime.Now);
                     }
                     catch (Exception ex)
                     {
                         var errorMsg = $"Error processing message for site transformation: {ex.Message}";
                         _logger.LogError(ex, errorMsg);
+                        await _statisticsService.WriteScrapingStateAsync(result.Message.Value, ScrapingState.Failed, "Transformer", DateTime.Now);
                         await CreateDeadLetterMsg(stoppingToken, result, errorMsg);
                     }
                 }

@@ -1,5 +1,6 @@
 using Confluent.Kafka;
 using MongoDB.Driver;
+using Scraping.Statistics;
 using System.Text.Json;
 
 namespace DataLoader;
@@ -11,12 +12,19 @@ public class Worker : BackgroundService
     private IConsumer<Null, string>? _consumer;
     private IMongoCollection<ProductScrapingRecord>? _collection;
     private readonly IProducer<Null, string> _producer;
+    private readonly ScrapingStatisticsService _statisticsService;
 
     public Worker(ILogger<Worker> logger, IConfiguration configuration)
     {
         _logger = logger;
         _configuration = configuration;
         _producer = CreateProducer();
+        _statisticsService = new ScrapingStatisticsService(
+            configuration["InfluxDB:Url"],
+            configuration["InfluxDB:Token"],
+            configuration["InfluxDB:Org"],
+            configuration["InfluxDB:Bucket"]
+        );
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -59,7 +67,8 @@ public class Worker : BackgroundService
                     var record = JsonSerializer.Deserialize<ProductScrapingRecord>(result.Message.Value);
                     if (record != null)
                     {
-               
+                        await _statisticsService.WriteScrapingStateAsync(record.SiteName, ScrapingState.Started, "Loader", DateTime.Now);
+
                         var filter = Builders<ProductScrapingRecord>.Filter.And(
                             Builders<ProductScrapingRecord>.Filter.Eq(x => x.SiteName, record.SiteName),
                             Builders<ProductScrapingRecord>.Filter.Eq(x => x.Description, record.Description),
@@ -68,9 +77,11 @@ public class Worker : BackgroundService
                         
                         await _collection.ReplaceOneAsync(filter, record, new ReplaceOptions(){IsUpsert = true}, cancellationToken: stoppingToken);
                         _logger.LogInformation("Inserted ProductScrapingRecord for site {SiteName}", record.SiteName);
+                        await _statisticsService.WriteScrapingStateAsync(record.SiteName, ScrapingState.Success, "Loader", DateTime.Now);
                     }
                     else
                     {
+                        await _statisticsService.WriteScrapingStateAsync("Unknown", ScrapingState.Failed, "Loader", DateTime.Now);
                         var errorMsg = "Received null or invalid ProductScrapingRecord from Kafka";
                         _logger.LogError(errorMsg);
                         await CreateDeadLetterMsg(stoppingToken, result, errorMsg);
@@ -79,6 +90,7 @@ public class Worker : BackgroundService
                 }
                 catch (Exception ex)
                 {
+                    await _statisticsService.WriteScrapingStateAsync("Unknown", ScrapingState.Failed, "Loader", DateTime.Now);
                     var errorMsg = $"Error processing message: {ex.Message}";
                     _logger.LogError(ex, errorMsg);
                     await CreateDeadLetterMsg(stoppingToken, result, errorMsg);

@@ -1,6 +1,8 @@
 using Confluent.Kafka;
 using StealthWebScraper;
 using System.Text.Json;
+using File = System.IO.File;
+using Scraping.Statistics;
 
 namespace SiteScraper;
 public partial class Worker : BackgroundService
@@ -9,12 +11,19 @@ public partial class Worker : BackgroundService
     private readonly IConfiguration _configuration;
     private IConsumer<Null, string>? _consumer;
     private readonly IProducer<Null, string>? _producer;
+    private readonly ScrapingStatisticsService _statisticsService;
 
     public Worker(ILogger<Worker> logger, IConfiguration configuration)
     {
         _logger = logger;
         _configuration = configuration;
         _producer = CreateProducer();
+        _statisticsService = new ScrapingStatisticsService(
+            configuration["InfluxDB:Url"],
+            configuration["InfluxDB:Token"],
+            configuration["InfluxDB:Org"],
+            configuration["InfluxDB:Bucket"]
+        );
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -27,11 +36,9 @@ public partial class Worker : BackgroundService
         _logger.LogInformation("SiteScraper started, subscribing to topic: {Topic}", scrapingRequestsTopic);
         try
         {
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 var result = _consumer.Consume(stoppingToken);
-
                 try
                 {
                     var scheduleConfig = JsonSerializer.Deserialize<SiteScheduleConfig>(result.Message.Value);
@@ -40,6 +47,9 @@ public partial class Worker : BackgroundService
                         _logger.LogInformation(
                             "Consumed SiteScheduleConfig: SiteName={SiteName}, SiteAddress={SiteAddress}",
                             scheduleConfig.SiteName, scheduleConfig.SiteAddress);
+
+                        // Write state: Started
+                        await _statisticsService.WriteScrapingStateAsync(scheduleConfig.SiteName, ScrapingState.Started, "Extractor", DateTime.Now);
 
                         var pageContent = await GetSiteData(scheduleConfig);
 
@@ -50,12 +60,16 @@ public partial class Worker : BackgroundService
 
                             await WriteMessageToKafka(stoppingToken, scrapingData, scrapingDataTopic);
                             _logger.LogInformation("Sent scraping-data for {Site} to Kafka", scrapingData.Site);
+                            // Write state: Success
+                            await _statisticsService.WriteScrapingStateAsync(scheduleConfig.SiteName, ScrapingState.Success, "Extractor", DateTime.Now);
                         }
                         else
                         {
                             var errorMsg = $"Failed to scrape data for site: {scheduleConfig.SiteName}";
                             _logger.LogError(errorMsg);
                             await CreateDeadLetterMsg(stoppingToken, result, errorMsg);
+                            // Write state: Error
+                            await _statisticsService.WriteScrapingStateAsync(scheduleConfig.SiteName, ScrapingState.Failed, "Extractor", DateTime.Now);
                         }
                     }
                     else
@@ -63,13 +77,16 @@ public partial class Worker : BackgroundService
                         var errorMsg = "Received null or invalid SiteScheduleConfig from Kafka";
                         _logger.LogWarning(errorMsg);
                         await CreateDeadLetterMsg(stoppingToken, result, errorMsg);
+                        // Write state: InvalidConfig
+                        await _statisticsService.WriteScrapingStateAsync("Unknown", ScrapingState.Failed, "Extractor", DateTime.Now);
                     }
-
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Failed to process message, sending to dead letter topic");
                     await CreateDeadLetterMsg(stoppingToken, result, ex.ToString());
+                    // Write state: Exception
+                    await _statisticsService.WriteScrapingStateAsync("Unknown", ScrapingState.Failed, "Extractor", DateTime.Now);
                 }
             }
         }

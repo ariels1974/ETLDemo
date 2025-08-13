@@ -358,3 +358,73 @@ spec:
           "
           
           echo "Job completed!"
+---
+# InfluxDB for time-series data storage
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb-service
+  labels:
+    app: influxdb
+spec:
+  ports:
+    - port: 8086
+      targetPort: 8086
+      nodePort: 30086  
+      name: influxdb
+  selector:
+    app: influxdb
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb:2.7
+          ports:
+            - containerPort: 8086
+          env:
+            - name: DOCKER_INFLUXDB_INIT_MODE
+              value: "setup"
+            - name: DOCKER_INFLUXDB_INIT_USERNAME
+              value: "etluser"
+            - name: DOCKER_INFLUXDB_INIT_PASSWORD
+              value: "etlpassword"
+            - name: DOCKER_INFLUXDB_INIT_ORG
+              value: "etldemo"
+            - name: DOCKER_INFLUXDB_INIT_BUCKET
+              value: "etlstats"
+            - name: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+              value: "etltoken"
+          volumeMounts:
+            - name: influxdb-storage
+              mountPath: /var/lib/influxdb2
+      volumes:
+        - name: influxdb-storage
+          persistentVolumeClaim:
+            claimName: influxdb-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-pvc
+  labels:
+    app: influxdb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

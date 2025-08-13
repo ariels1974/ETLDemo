@@ -2,7 +2,7 @@ namespace SiteTransformers.Transformers;
 
 public class DefaultTransformer : ISiteTransformer
 {
-    public List<ProductScrapingRecord> Transform(string message)
+    public List<ProductScrapingRecord> Transform(string message, string site)
     {
         // Default mapping
         return new List<ProductScrapingRecord>

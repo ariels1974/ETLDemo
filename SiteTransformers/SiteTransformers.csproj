@@ -12,4 +12,8 @@
     <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Scraping.Statistics\Scraping.Statistics.csproj" />
+  </ItemGroup>
 </Project>

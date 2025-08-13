@@ -3,7 +3,7 @@ using HtmlAgilityPack;
 
 public class ALMTransformer : ISiteTransformer
 {
-    public List<ProductScrapingRecord> Transform(string message)
+    public List<ProductScrapingRecord> Transform(string message, string site)
     {
         var results = new List<ProductScrapingRecord>();
         var doc = new HtmlDocument();
@@ -23,10 +23,10 @@ public class ALMTransformer : ISiteTransformer
                     Category: "Electric-Scooters",
                     Price: priceText!,
                     SerialNumber: "A123",
-                    SiteName: "ALM",
+                    SiteName: site,
                     Description: productName.InnerText,
                     SubCategory: "ExampleSubA",
-                    DateTime: System.DateTime.UtcNow));
+                    DateTime: System.DateTime.Now));
 
         }
 

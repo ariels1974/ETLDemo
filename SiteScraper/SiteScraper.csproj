@@ -11,6 +11,7 @@
     <PackageReference Include="Confluent.Kafka" Version="2.11.0" />
     <PackageReference Include="DotNetSeleniumExtras.WaitHelpers" Version="3.11.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.2" />
+    <PackageReference Include="InfluxDB.Client" Version="4.18.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
     <PackageReference Include="Microsoft.Playwright" Version="1.54.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.34.0" />
@@ -19,5 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StealthWebScraper\StealthWebScraper.csproj" />
+    <ProjectReference Include="..\Scraping.Statistics\Scraping.Statistics.csproj" />
   </ItemGroup>
 </Project>

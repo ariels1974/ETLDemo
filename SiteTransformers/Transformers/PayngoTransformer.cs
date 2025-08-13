@@ -4,7 +4,7 @@ namespace SiteTransformers.Transformers;
 
 public class PayngoTransformer : ISiteTransformer
 {
-    public List<ProductScrapingRecord> Transform(string htmlContent)
+    public List<ProductScrapingRecord> Transform(string htmlContent, string site)
     {
         var doc = new HtmlDocument();
 
@@ -18,10 +18,10 @@ public class PayngoTransformer : ISiteTransformer
                 Category: "ExampleCategoryB",
                 Price: "200",
                 SerialNumber: "B456",
-                SiteName: "Payngo",
+                SiteName: site,
                 Description: htmlContent.ToLower(),
                 SubCategory: "ExampleSubB",
-                DateTime: System.DateTime.UtcNow
+                DateTime: DateTime.Now
             )
         };
     }
