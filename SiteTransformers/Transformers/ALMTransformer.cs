@@ -1,11 +1,17 @@
-using System.Text.Json;
 using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace SiteTransformers.Transformers;
 using HtmlAgilityPack;
+using System.Globalization;
 
 public partial class ALMTransformer : ISiteTransformer
 {
+    readonly CultureInfo israelCulture;
+    public ALMTransformer()
+    {
+        israelCulture = new CultureInfo("he-IL");
+    }
     public List<ProductScrapingRecord> Transform(string method, string data, string site)
     {
         var results = new List<ProductScrapingRecord>();
@@ -23,7 +29,7 @@ public partial class ALMTransformer : ISiteTransformer
         return results;
     }
 
-    private static void TransformGraphQL(string data, List<ProductScrapingRecord> productScrapingRecords)
+    private void TransformGraphQL(string data, List<ProductScrapingRecord> productScrapingRecords)
     {
         var products = System.Text.Json.JsonSerializer.Deserialize<GraphQLResponse<CategoryProductData>>(data, new JsonSerializerOptions()
         {
@@ -35,7 +41,7 @@ public partial class ALMTransformer : ISiteTransformer
         {
             productScrapingRecords.Add(new ProductScrapingRecord(
                 Category: "Scooters-Bicycles",
-                Price: categoryProductData.PriceRange.MaximumPrice.FinalPrice.Value.ToString("C2"),
+                Price: categoryProductData.PriceRange.MaximumPrice.FinalPrice.Value.ToString("C", israelCulture),
                 SerialNumber: string.Empty,
                 SiteName: "ALM",
                 Description: categoryProductData.Name,
