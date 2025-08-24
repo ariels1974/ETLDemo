@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System.Text.Json;
+using HtmlAgilityPack;
 
 namespace SiteScraper.Scrapers;
 
@@ -41,7 +42,7 @@ public class DynamicHTMLScraper : ISiteScraper
 
             var data = new
             {
-                HTMLContent = products.InnerHtml,
+                Data = products.InnerHtml,
                 SiteName = dynamicHtmlParams.SiteName,
                 ScrapeTime = DateTime.UtcNow,
                 ScrapingMethod = "DynamicHTML"

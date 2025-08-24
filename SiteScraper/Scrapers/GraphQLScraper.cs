@@ -6,7 +6,7 @@ public class GraphQLScraper: ISiteScraper
 {
     private readonly KafkaSenderHelper _kafkaSenderHelper;
 
-    GraphQLScraper(KafkaSenderHelper kafkaSenderHelper)
+    public GraphQLScraper(KafkaSenderHelper kafkaSenderHelper)
     {
         _kafkaSenderHelper = kafkaSenderHelper;
     }
@@ -16,15 +16,7 @@ public class GraphQLScraper: ISiteScraper
 
         GraphQLClient.GraphQLClient graphQLClient = new(GraphQLParams.URL);
 
-        var method = typeof(GraphQLClient.GraphQLClient)
-            .GetMethod("QueryAsync")
-            .MakeGenericMethod(GraphQLParams.DataType);
-
-        var task = (Task)method.Invoke(graphQLClient, new object[] { GraphQLParams.Query, GraphQLParams.Variables, GraphQLParams.OperationName });
-        await task.ConfigureAwait(false);
-
-        var resultProperty = task.GetType().GetProperty("Result");
-        var result = resultProperty.GetValue(task); 
+        var result = await graphQLClient.QueryAsyncAsString(GraphQLParams.Query, GraphQLParams.Variables, GraphQLParams.OperationName);
         if(result == null)
         {
             await _kafkaSenderHelper.CreateDeadLetterMsg(cancellationToken, null, "No data returned from GraphQL query.");
@@ -33,7 +25,7 @@ public class GraphQLScraper: ISiteScraper
 
         var data = new
         {
-            GraphQLData = result,
+            Data = result,
             SiteName = GraphQLParams.SiteName,
             ScrapeTime = DateTime.UtcNow,
             ScrapingMethod = "GraphQL"

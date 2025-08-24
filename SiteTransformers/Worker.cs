@@ -37,13 +37,15 @@ namespace SiteTransformers
                     try
                     {
                         var doc = JsonDocument.Parse(result.Message.Value);
-                        var site = doc.RootElement.GetProperty("Site").GetString() ?? "";
-                        var data = doc.RootElement.GetProperty("Html").GetString() ?? "";
+                        var site = doc.RootElement.GetProperty("SiteName").GetString() ?? "";
+                        var method = doc.RootElement.GetProperty("ScrapingMethod").GetString() ?? "Unknown";
+
+                        var data = doc.RootElement.GetProperty("Data").GetString() ?? "";
                         // Write state: Started
                         await _statisticsService.WriteScrapingStateAsync(site, ScrapingState.Started, "Transformer", DateTime.Now);
 
                         var transformer = _factory.GetTransformer(site);
-                        var transformed = transformer.Transform(data, site);
+                        var transformed = transformer.Transform(method,data,site);
                         foreach (var item in transformed)
                         {
                             _logger.LogInformation("Transformed data for site {Site}: {@Transformed}", site, item);

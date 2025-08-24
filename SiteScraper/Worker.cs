@@ -132,7 +132,7 @@ public partial class Worker : BackgroundService
                 XPathOrSelector = method.DynamicHTML?.ProductNodeQuery,
                 SiteName = scheduleConfig.SiteName,
             },
-            "graphQL" => new GraphQLScrapingParameters
+            "GraphQL" => new GraphQLScrapingParameters
             {
                 Query = method.GraphQL?.Query ?? string.Empty,
                 Variables = method.GraphQL?.Variables,

@@ -2,7 +2,7 @@ namespace SiteTransformers.Transformers;
 
 public class DefaultTransformer : ISiteTransformer
 {
-    public List<ProductScrapingRecord> Transform(string message, string site)
+    public List<ProductScrapingRecord> Transform(string method, string message, string site)
     {
         // Default mapping
         return new List<ProductScrapingRecord>
@@ -11,7 +11,7 @@ public class DefaultTransformer : ISiteTransformer
                     Category: "Unknown",
                     Price: string.Empty,
                     SerialNumber: string.Empty,
-                    SiteName: "Unknown",
+                    SiteName: site,
                     Description: message,
                     SubCategory: string.Empty,
                     DateTime: System.DateTime.UtcNow

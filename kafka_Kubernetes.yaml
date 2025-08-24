@@ -159,7 +159,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: create-large-message-topics
+  name: create-kafka-message-topics
 spec:
   template:
     spec:

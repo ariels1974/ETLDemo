@@ -50,6 +50,25 @@
 
             return result.Data;
         }
+
+        public async Task<string> QueryAsyncAsString(string query, object variables = null, string operationName = null)
+        {
+            var request = new
+            {
+                query = query,
+                variables = variables,
+                operationName = operationName
+            };
+
+            var json = JsonSerializer.Serialize(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(_endpoint, content);
+            response.EnsureSuccessStatusCode();
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+           return responseJson;
+        }
     }
 
     public class GraphQLResponse<T>

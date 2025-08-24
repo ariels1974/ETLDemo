@@ -6,14 +6,12 @@ namespace SiteScraper;
 public class KafkaSenderHelper
 {
     private readonly IConfiguration _configuration;
-    //private string scrapingDataTopic;
     private readonly IProducer<Null, string>? _producer;
 
     public KafkaSenderHelper(IConfiguration configuration)
     {
         _configuration = configuration;
         _producer = CreateProducer();
-        //scrapingDataTopic = _configuration["Kafka:ProducerTopic"] ?? "scraping-data";
 
     }
     private IProducer<Null, string> CreateProducer()
@@ -37,7 +35,7 @@ public class KafkaSenderHelper
     {
         var deadLetter = new
         {
-            OriginalMessage = result.Message.Value,
+            OriginalMessage = result?.Message?.Value,
             ServiceName = "SiteScraper",
             Error = errorMsg,
             Timestamp = DateTime.UtcNow

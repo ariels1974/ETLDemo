@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using HtmlInvestigator.Console;
+using System.Text.Json;
 
 // See https://aka.ms/new-console-template for more information
 async Task ExtractFromStaticContent()
@@ -133,13 +134,16 @@ fragment ProductFragment on ProductInterface {
         sort = new { relevance = "DESC" }
     };
 
-
+    // Save the query to a JSON file
+    var queryObj = new { query };
+    var json = JsonSerializer.Serialize(queryObj, new JsonSerializerOptions { WriteIndented = true });
+    await File.WriteAllTextAsync("GraphQLQuery.json", json);
     var result = await graphQLClient.QueryAsync<CategoryProductData>(query, variables, "GetCategories");
 }
 
 Console.WriteLine("Hello, World!");
 
-//await GetGraphqlContent();
+await GetGraphqlContent();
 
 //await ExtractFromStaticContent();
 var dynamicContentScraper = new DynamicContentScraper();

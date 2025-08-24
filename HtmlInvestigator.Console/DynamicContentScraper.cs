@@ -37,6 +37,11 @@ public class DynamicContentScraper
             var products = htmlDoc.DocumentNode.SelectSingleNode(".//ol[contains(@class, 'products list items')]");
               
             var a= JsonSerializer.Serialize(products.InnerHtml);
+
+
+            //htmlDoc.LoadHtml(products.InnerHtml);
+            //var items = htmlDoc.DocumentNode.SelectNodes(".//li[contains(@class, 'item product product-item')]");
+
             var messageSize = System.Text.Encoding.UTF8.GetByteCount(a);
             //if (targetNode != null)
             //{

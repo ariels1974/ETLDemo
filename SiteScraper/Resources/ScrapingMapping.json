@@ -3,86 +3,15 @@
     "SiteName": "ALM-Electric Scooter",
     "ScrappingMethod": [
       {
-        "MethodType": "graphQL",
+        "MethodType": "GraphQL",
         "GraphQL": {
-          "Query": "@\"",
-          "query": null,
-          "GetCategories($pageSize": "Int!",
-          "$currentPage": "Int!",
-          "$filters": "ProductAttributeFilterInput!",
-          "$sort": "ProductAttributeSortInput)",
-          {
-            "products(pageSize": "$pageSize",
-            "currentPage": "$currentPage",
-            "filter": "$filters",
-            "sort": "$sort)",
-            {
-              "...ProductsFragment" "__typename"
-            }
-          },
-
-          "fragment" "ProductsFragment",
-          "on" "Products",
-          {
-            "items" {
-              "id" "...ProductFragment",
-              "__typename"
-            },
-            "page_info" {
-              "total_pages" "current_page",
-              "__typename"
-            },
-            "total_count" "__typename"
-          },
-
-          "fragment" "ProductFragment",
-          "on" "ProductInterface",
-          {
-            "name" "product_brand",
-            {
-              "brand_image_url" "brand_link",
-              "item_brand" "__typename"
-            },
-            "price_range" {
-              "maximum_price" {
-                "final_price" {
-                  "currency" "value",
-                  "__typename"
-                },
-                "regular_price" {
-                  "currency" "value",
-                  "__typename"
-                },
-                "discount" {
-                  "amount_off" "__typename"
-                },
-                "__typename"
-              },
-              "minimum_price" {
-                "final_price" {
-                  "currency" "value",
-                  "__typename"
-                },
-                "regular_price" {
-                  "currency" "value",
-                  "__typename"
-                },
-                "discount" {
-                  "amount_off" "__typename"
-                },
-                "__typename"
-              },
-              "__typename"
-            },
-            "sku" "stock_status",
-            "__typename"
-          },
+          "Query": "\r\nquery GetCategories($pageSize:Int! $currentPage:Int! $filters:ProductAttributeFilterInput! $sort:ProductAttributeSortInput) {\r\n        products(pageSize:$pageSize currentPage:$currentPage filter:$filters sort:$sort) {\r\n        ...ProductsFragment\r\n        __typename\r\n    }\r\n}\r\n\r\nfragment ProductsFragment on Products {\r\n    items {\r\n        id\r\n        ...ProductFragment\r\n        __typename\r\n    }\r\n    page_info {\r\n        total_pages\r\n        current_page\r\n        __typename\r\n    }\r\n    total_count\r\n    __typename\r\n}\r\n\r\nfragment ProductFragment on ProductInterface {\r\n    name\r\n    product_brand {\r\n        brand_image_url\r\n        brand_link\r\n        item_brand\r\n        __typename\r\n    }\r\n    price_range {\r\n        maximum_price {\r\n            final_price {\r\n                currency\r\n                value\r\n                __typename\r\n            }\r\n            regular_price {\r\n                currency\r\n                value\r\n                __typename\r\n            }\r\n            discount {\r\n                amount_off\r\n                __typename\r\n            }\r\n            __typename\r\n        }\r\n        minimum_price {\r\n            final_price {\r\n                currency\r\n                value\r\n                __typename\r\n            }\r\n            regular_price {\r\n                currency\r\n                value\r\n                __typename\r\n            }\r\n            discount {\r\n                amount_off\r\n                __typename\r\n            }\r\n            __typename\r\n        }\r\n        __typename\r\n    }\r\n    sku\r\n    stock_status\r\n    __typename\r\n}",
           "Variables": {
-            "currentPage": "product-123",
-            "id": "MzA=",
+            "currentPage": "1",
+            "id": "OTU=",
             "filters": {
               "category_uid": {
-                "eq": "MzA="
+                "eq": "OTU="
               }
             },
             "pageSize": 20,
@@ -91,7 +20,8 @@
             }
           },
           "URL": "https://www.alm.co.il/graphql",
-          "operationName": "GetCategories"
+          "operationName": "GetCategories",
+          "DataType": "ETLDemo.SiteTransformers.Transformers.ALMTransformer.CategoryProductData"
         }
       },
       {
@@ -107,7 +37,7 @@
         "MethodType": "DynamicHTML",
         "DynamicHTML": {
           "ProductNodeQuery": ".//ol[contains(@class, 'products list items')]",
-          "URL": "https://www.payngo.co.il/scooters-bicycles/scooters/electric-scooter.html","
+          "URL": "https://www.payngo.co.il/scooters-bicycles/scooters/electric-scooter.html"
         }
       },
       {

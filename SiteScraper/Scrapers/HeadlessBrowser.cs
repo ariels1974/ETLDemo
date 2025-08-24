@@ -39,7 +39,7 @@ public class HeadlessBrowser : ISiteScraper
 
                 var data = new
                 {
-                    HtmlContent = pageContent.Html,
+                    Data = pageContent.Html,
                     SiteName = headlessBrowserScrapingParameters.SiteName,
                     ScrapeTime = DateTime.UtcNow,
                     ScrapingMethod = "HeadlessBrowser"
