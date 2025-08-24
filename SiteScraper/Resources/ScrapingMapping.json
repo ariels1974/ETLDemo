@@ -1,0 +1,119 @@
+[
+  {
+    "SiteName": "ALM-Electric Scooter",
+    "ScrappingMethod": [
+      {
+        "MethodType": "graphQL",
+        "GraphQL": {
+          "Query": "@\"",
+          "query": null,
+          "GetCategories($pageSize": "Int!",
+          "$currentPage": "Int!",
+          "$filters": "ProductAttributeFilterInput!",
+          "$sort": "ProductAttributeSortInput)",
+          {
+            "products(pageSize": "$pageSize",
+            "currentPage": "$currentPage",
+            "filter": "$filters",
+            "sort": "$sort)",
+            {
+              "...ProductsFragment" "__typename"
+            }
+          },
+
+          "fragment" "ProductsFragment",
+          "on" "Products",
+          {
+            "items" {
+              "id" "...ProductFragment",
+              "__typename"
+            },
+            "page_info" {
+              "total_pages" "current_page",
+              "__typename"
+            },
+            "total_count" "__typename"
+          },
+
+          "fragment" "ProductFragment",
+          "on" "ProductInterface",
+          {
+            "name" "product_brand",
+            {
+              "brand_image_url" "brand_link",
+              "item_brand" "__typename"
+            },
+            "price_range" {
+              "maximum_price" {
+                "final_price" {
+                  "currency" "value",
+                  "__typename"
+                },
+                "regular_price" {
+                  "currency" "value",
+                  "__typename"
+                },
+                "discount" {
+                  "amount_off" "__typename"
+                },
+                "__typename"
+              },
+              "minimum_price" {
+                "final_price" {
+                  "currency" "value",
+                  "__typename"
+                },
+                "regular_price" {
+                  "currency" "value",
+                  "__typename"
+                },
+                "discount" {
+                  "amount_off" "__typename"
+                },
+                "__typename"
+              },
+              "__typename"
+            },
+            "sku" "stock_status",
+            "__typename"
+          },
+          "Variables": {
+            "currentPage": "product-123",
+            "id": "MzA=",
+            "filters": {
+              "category_uid": {
+                "eq": "MzA="
+              }
+            },
+            "pageSize": 20,
+            "sort": {
+              "relevance": "DESC"
+            }
+          },
+          "URL": "https://www.alm.co.il/graphql",
+          "operationName": "GetCategories"
+        }
+      },
+      {
+        "MethodType": "HeadLessBrowser"
+      }
+    ],
+    "PageUrl": "https://www.alm.co.il/smartphones-laptops-techproducts/electric-scooter.html"
+  },
+  {
+    "SiteName": "Payngo-Electric Scooter",
+    "ScrappingMethod": [
+      {
+        "MethodType": "DynamicHTML",
+        "DynamicHTML": {
+          "ProductNodeQuery": ".//ol[contains(@class, 'products list items')]",
+          "URL": "https://www.payngo.co.il/scooters-bicycles/scooters/electric-scooter.html","
+        }
+      },
+      {
+        "MethodType": "HeadLessBrowser"
+      }
+    ],
+    "PageUrl": "https://www.payngo.co.il/scooters-bicycles/scooters/electric-scooter.html"
+  }
+]

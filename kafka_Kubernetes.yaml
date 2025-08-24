@@ -265,7 +265,21 @@ spec:
             memory: "512Mi"
             cpu: "200m"
 ---
-# MongoDB for storing large scraped data
+# MongoDB PersistentVolumeClaim for data persistence
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  labels:
+    app: mongodb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# MongoDB for storing large scraped data (with persistent storage)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -299,6 +313,13 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+        volumeMounts:
+        - name: mongodb-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-storage
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
 ---
 # MongoDB Service
 apiVersion: v1
@@ -316,48 +337,6 @@ spec:
     name: mongo
   selector:
     app: mongodb
----
-# Job to create unique index in MongoDB
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: mongodb-simple-index
-spec:
-  backoffLimit: 5
-  template:
-    spec:
-      restartPolicy: Never
-      containers:
-      - name: mongo-index-creator
-        image: mongo:6.0
-        command: ["/bin/bash", "-c"]
-        args:
-        - |
-          echo "Testing MongoDB connection..."
-          
-          # Simple connection test
-          for i in {1..30}; do
-            if mongosh --host mongodb-service --port 27017 --username root --password password --authenticationDatabase admin --eval "db.adminCommand('ping')" --quiet; then
-              echo "MongoDB connection successful!"
-              break
-            else
-              echo "Attempt $i: MongoDB not ready, waiting..."
-              sleep 10
-            fi
-          done
-          
-          # Create just the basic unique index first
-          echo "Creating basic unique index..."
-          mongosh --host mongodb-service --port 27017 --username root --password password --authenticationDatabase admin ScrapingDb --eval "
-            db.ProductScrapingRecords.createIndex(
-              { siteName: 1, description: 1, price: 1 },
-              { unique: true, name: 'unique_product_index' }
-            );
-            print('Index created successfully');
-            db.ProductScrapingRecords.getIndexes().forEach(idx => print('Index: ' + idx.name));
-          "
-          
-          echo "Job completed!"
 ---
 # InfluxDB for time-series data storage
 apiVersion: v1
@@ -428,3 +407,45 @@ spec:
   resources:
     requests:
       storage: 5Gi
+---
+# Job to create unique index in MongoDB
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mongodb-simple-index
+spec:
+  backoffLimit: 5
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: mongo-index-creator
+        image: mongo:6.0
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "Testing MongoDB connection..."
+          
+          # Simple connection test
+          for i in {1..30}; do
+            if mongosh --host mongodb-service --port 27017 --username root --password password --authenticationDatabase admin --eval "db.adminCommand('ping')" --quiet; then
+              echo "MongoDB connection successful!"
+              break
+            else
+              echo "Attempt $i: MongoDB not ready, waiting..."
+              sleep 10
+            fi
+          done
+          
+          # Create just the basic unique index first
+          echo "Creating basic unique index..."
+          mongosh --host mongodb-service --port 27017 --username root --password password --authenticationDatabase admin ScrapingDb --eval "
+            db.ProductScrapingRecords.createIndex(
+              { siteName: 1, description: 1, price: 1 },
+              { unique: true, name: 'unique_product_index' }
+            );
+            print('Index created successfully');
+            db.ProductScrapingRecords.getIndexes().forEach(idx => print('Index: ' + idx.name));
+          "
+          
+          echo "Job completed!"

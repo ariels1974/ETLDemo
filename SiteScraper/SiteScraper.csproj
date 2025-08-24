@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GraphQLClient\GraphQLClient.csproj" />
     <ProjectReference Include="..\StealthWebScraper\StealthWebScraper.csproj" />
     <ProjectReference Include="..\Scraping.Statistics\Scraping.Statistics.csproj" />
   </ItemGroup>

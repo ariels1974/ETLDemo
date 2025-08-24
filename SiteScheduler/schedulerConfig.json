@@ -7,6 +7,7 @@
   {
     "siteName": "ALM-Electric Scooter",
     "siteAddress": "https://www.alm.co.il/smartphones-laptops-techproducts/electric-scooter.html",
+    "MethodType": "GraphQL",
     "period": 120
   }
 ]
